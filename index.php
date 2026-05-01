@@ -1,108 +1,109 @@
 <?php
-/**
- * index.php
- * Dashboard principal do sistema MyWallet
- * Exibe saldo, receitas, despesas e formulário para nova transação
- */
 
-require_once 'sessao.php';
-require_once 'funcoes.php';
+    session_start();
+    require "funcoes.php";
 
-// Protege a página — redireciona se não estiver logado
-verificarAutenticacao();
-
-$erro    = '';
-$sucesso = '';
-
-// ── Processar nova transação via POST ────────────────────────────────────────
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'adicionar') {
-
-    $descricao = trim($_POST['descricao'] ?? '');
-    $valor     = str_replace(',', '.', trim($_POST['valor'] ?? ''));
-    $tipo      = $_POST['tipo'] ?? '';
-
-    // Validações
-    if (empty($descricao)) {
-        $erro = 'A descrição da transação é obrigatória.';
-    } elseif (!is_numeric($valor) || (float)$valor <= 0) {
-        $erro = 'Informe um valor numérico maior que zero.';
-    } elseif (!in_array($tipo, ['Receita', 'Despesa'], true)) {
-        $erro = 'Selecione um tipo válido: Receita ou Despesa.';
-    } else {
-        adicionarTransacao($descricao, (float)$valor, $tipo);
-        $sucesso = 'Transação "' . sanitizarTexto($descricao) . '" adicionada com sucesso!';
+    $fezLogin = $_SESSION['logado'] ?? null;
+    if(!$fezLogin){
+        header("Location: login.php");
     }
-}
 
-// ── Calcular totais ──────────────────────────────────────────────────────────
-$transacoes    = $_SESSION['transacoes'];
-$totalReceitas = calcularReceitas($transacoes);
-$totalDespesas = calcularDespesas($transacoes);
-$saldo         = calcularSaldo($transacoes);
+    $usuario = $_SESSION['usuario'] ?? null;
 
-$pageTitle = 'Dashboard';
-require_once 'includes/header.php';
-require_once 'includes/nav.php';
+    
+    if(!isset($_SESSION['transacoes'])){
+        $_SESSION['transacoes'] = [];
+    }
+
+    
+    if($_SERVER['REQUEST_METHOD'] === "POST"){
+
+        $descricao = $_POST['descricao'] ?? null;
+        $valor     = $_POST['valor']     ?? null;
+        $tipo      = $_POST['tipo']      ?? null;
+
+        if(varValida($descricao) && varValida($valor) && varValida($tipo)){
+
+            if($valor > 0){
+                $_SESSION['transacoes'][] = [
+                    "id"        => uniqid(),
+                    "descricao" => ucfirst($descricao),
+                    "valor"     => (float) $valor,
+                    "tipo"      => $tipo,
+                    "data"      => date("d/m/Y H:i"),
+                ];
+                $sucesso = "Transação adicionada com sucesso!";
+            }else{
+                $erro = "O valor deve ser maior que zero.";
+            }
+
+        }else{
+            $erro = "Preencha todos os campos.";
+        }
+    }
+
+    
+    $transacoes    = $_SESSION['transacoes'];
+    $totalReceitas = calcularReceitas($transacoes);
+    $totalDespesas = calcularDespesas($transacoes);
+    $saldo         = calcularSaldo($transacoes);
+
 ?>
+<?php require_once "includes/header.php"; ?>
+<?php require_once "includes/nav.php"; ?>
 
 <div class="main-content">
 
-    <?php if ($erro): ?>
-        <div class="alert alert-danger"><?= htmlspecialchars($erro) ?></div>
-    <?php endif; ?>
-    <?php if ($sucesso): ?>
-        <div class="alert alert-success"><?= htmlspecialchars($sucesso) ?></div>
+    <?php if(isset($erro)): ?>
+        <div class="alert alert-danger"><?= $erro ?></div>
     <?php endif; ?>
 
-    <!-- ── Cards de resumo ── -->
+    <?php if(isset($sucesso)): ?>
+        <div class="alert alert-success"><?= $sucesso ?></div>
+    <?php endif; ?>
+
     <div class="summary-grid">
 
         <div class="summary-card receitas">
             <div class="summary-label">Total Receitas</div>
-            <div class="summary-value"><?= formatarMoeda($totalReceitas) ?></div>
+            <div class="summary-value">R$ <?= formatarMoeda($totalReceitas) ?></div>
         </div>
 
         <div class="summary-card despesas">
             <div class="summary-label">Total Despesas</div>
-            <div class="summary-value"><?= formatarMoeda($totalDespesas) ?></div>
+            <div class="summary-value">R$ <?= formatarMoeda($totalDespesas) ?></div>
         </div>
 
         <div class="summary-card saldo">
             <div class="summary-label">Saldo Disponível</div>
-            <div class="summary-value"><?= formatarMoeda($saldo) ?></div>
+            <div class="summary-value">R$ <?= formatarMoeda($saldo) ?></div>
         </div>
 
     </div>
 
-    <!-- ── Formulário Nova Transação ── -->
     <div class="card" style="margin-bottom:1.25rem;">
         <div class="card-header">Nova Transação</div>
         <div class="card-body">
-            <form method="POST" action="index.php">
-                <input type="hidden" name="acao" value="adicionar">
+            <form action="" method="post">
                 <div class="form-grid">
 
                     <div class="form-group">
-                        <label class="form-label" for="descricao">Descrição</label>
-                        <input type="text" id="descricao" name="descricao" class="form-input"
-                               placeholder="Ex: Salário, Aluguel..."
-                               value="<?= htmlspecialchars($_POST['descricao'] ?? '', ENT_QUOTES) ?>"
-                               maxlength="100" required>
+                        <label class="form-label">Descrição</label>
+                        <input type="text" name="descricao" class="form-input"
+                               placeholder="Ex: Salário, Aluguel..." maxlength="100">
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="valor">Valor</label>
-                        <input type="number" id="valor" name="valor" class="form-input"
-                               placeholder="0,00" min="0.01" step="0.01"
-                               value="<?= htmlspecialchars($_POST['valor'] ?? '', ENT_QUOTES) ?>"
-                               required>
+                        <label class="form-label">Valor</label>
+                        <input type="number" name="valor" class="form-input"
+                               placeholder="0,00" min="0.01" step="0.01">
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="tipo">Tipo</label>
-                        <select id="tipo" name="tipo" class="form-select">
-                            <option value="Receita" <?= (($_POST['tipo'] ?? '') === 'Receita') ? 'selected' : '' ?>>Receita</option>
-                            <option value="Despesa" <?= (($_POST['tipo'] ?? '') === 'Despesa') ? 'selected' : '' ?>>Despesa</option>
+                        <label class="form-label">Tipo</label>
+                        <select name="tipo" class="form-select">
+                            <option value="Receita">Receita</option>
+                            <option value="Despesa">Despesa</option>
                         </select>
                     </div>
 
@@ -116,20 +117,13 @@ require_once 'includes/nav.php';
         </div>
     </div>
 
-    <!-- ── Botão Ver Histórico ── -->
     <div class="view-history-wrap">
         <a href="historico.php" class="btn btn-outline">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
             Ver Detalhes do Histórico
         </a>
     </div>
 
-    <!-- ── Últimas transações (prévia) ── -->
-    <?php if (!empty($transacoes)): ?>
+    <?php if(!empty($transacoes)): ?>
         <div class="card" style="margin-top:1.5rem;">
             <div class="card-header">Últimas Transações</div>
             <div class="table-wrapper">
@@ -144,21 +138,21 @@ require_once 'includes/nav.php';
                     </thead>
                     <tbody>
                         <?php
-                        // Mostra as últimas 5 transações em ordem inversa
-                        $preview = array_slice(array_reverse($transacoes), 0, 5);
-                        foreach ($preview as $t):
-                            $isReceita = $t['tipo'] === 'Receita';
+                            $ultimas = array_slice(array_reverse($transacoes), 0, 5);
+                            foreach ($ultimas as $t):
                         ?>
                         <tr>
-                            <td class="td-date"><?= htmlspecialchars($t['data']) ?></td>
-                            <td class="td-desc"><?= htmlspecialchars($t['descricao']) ?></td>
+                            <td class="td-date"><?= $t['data'] ?></td>
+                            <td class="td-desc"><?= $t['descricao'] ?></td>
                             <td>
-                                <span class="badge <?= $isReceita ? 'badge-receita' : 'badge-despesa' ?>">
-                                    <?= htmlspecialchars($t['tipo']) ?>
-                                </span>
+                                <?php if($t['tipo'] === 'Receita'): ?>
+                                    <span class="badge badge-receita">Receita</span>
+                                <?php else: ?>
+                                    <span class="badge badge-despesa">Despesa</span>
+                                <?php endif; ?>
                             </td>
-                            <td class="td-value <?= $isReceita ? 'positivo' : 'negativo' ?>">
-                                <?= ($isReceita ? '+' : '-') . ' ' . formatarMoeda($t['valor']) ?>
+                            <td class="td-value <?= $t['tipo'] === 'Receita' ? 'positivo' : 'negativo' ?>">
+                                <?= $t['tipo'] === 'Receita' ? '+' : '-' ?> R$ <?= formatarMoeda($t['valor']) ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -170,4 +164,4 @@ require_once 'includes/nav.php';
 
 </div>
 
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once "includes/footer.php"; ?>

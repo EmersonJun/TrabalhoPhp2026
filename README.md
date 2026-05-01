@@ -61,5 +61,5 @@ mywallet/
 - [x] Estruturas condicionais e laços de repetição
 
 ## 👥 Integrantes
-- Integrante 1 — [nome]
-- Integrante 2 — [nome]
+- Integrante 1 — [Emerson]
+- Integrante 2 — [Taynara]

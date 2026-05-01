@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'MyWallet' ?> — Gestão Financeira</title>
     <style>
-        /* ===== RESET & BASE ===== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
@@ -35,7 +34,6 @@
             min-height: 100vh;
         }
 
-        /* ===== NAVBAR ===== */
         .navbar {
             background: var(--surface);
             display: flex;
@@ -95,14 +93,12 @@
         }
         .btn-logout:hover { background: #b91c1c; }
 
-        /* ===== MAIN LAYOUT ===== */
         .main-content {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem 1.5rem;
         }
 
-        /* ===== CARDS ===== */
         .card {
             background: var(--surface2);
             border-radius: var(--radius);
@@ -120,7 +116,6 @@
 
         .card-body { padding: 1.5rem; }
 
-        /* ===== SUMMARY GRID ===== */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -157,7 +152,6 @@
         .summary-card.despesas .summary-value { color: var(--red); }
         .summary-card.saldo .summary-value    { color: #fff; }
 
-        /* ===== FORM STYLES ===== */
         .form-grid {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr auto;
@@ -208,7 +202,6 @@
         }
         .btn-add:hover { background: #334155; }
 
-        /* ===== BUTTONS ===== */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -233,7 +226,6 @@
         .btn-primary { background: var(--blue); color: #fff; }
         .btn-primary:hover { background: #1d4ed8; }
 
-        /* ===== TABLE ===== */
         .table-wrapper { overflow-x: auto; }
 
         table {
@@ -298,7 +290,6 @@
         }
         .btn-remove:hover { color: var(--red); }
 
-        /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
             padding: 4rem 1rem;
@@ -307,7 +298,6 @@
         .empty-state svg { margin-bottom: 1rem; opacity: .3; }
         .empty-state p { font-size: .95rem; }
 
-        /* ===== ALERT ===== */
         .alert {
             border-radius: 8px;
             padding: .85rem 1.1rem;
@@ -318,7 +308,6 @@
         .alert-danger  { background: var(--red-light);  color: #991b1b; }
         .alert-success { background: var(--green-light); color: #166534; }
 
-        /* ===== HISTORY HEADER ===== */
         .history-header {
             display: flex;
             align-items: center;
@@ -333,14 +322,12 @@
         }
         .history-actions { display: flex; gap: .6rem; }
 
-        /* ===== VIEW HISTORY BUTTON ===== */
         .view-history-wrap {
             display: flex;
             justify-content: center;
             margin-top: 1.25rem;
         }
 
-        /* ===== LOGIN PAGE ===== */
         .login-page {
             min-height: 100vh;
             display: flex;

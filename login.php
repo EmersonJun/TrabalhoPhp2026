@@ -1,53 +1,32 @@
 <?php
-/**
- * login.php
- * Página de autenticação do sistema MyWallet
- * Utiliza password_hash() e password_verify() para segurança
- */
 
-require_once 'sessao.php';
+    session_start();
 
-// Se já está logado, redireciona para o dashboard
-if (!empty($_SESSION['usuario'])) {
-    header('Location: index.php');
-    exit;
-}
-
-/**
- * Credenciais fixas (hash gerado com password_hash)
- * Usuário : admin
- * Senha   : admin123
- */
-$USUARIOS = [
-    'admin' => password_hash('admin123', PASSWORD_BCRYPT),
-    'user'  => password_hash('user123',  PASSWORD_BCRYPT),
-];
-
-$erro = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $login = trim($_POST['usuario'] ?? '');
-    $senha = $_POST['senha'] ?? '';
-
-    if (empty($login) || empty($senha)) {
-        $erro = 'Preencha o usuário e a senha.';
-    } elseif (
-        isset($USUARIOS[$login]) &&
-        password_verify($senha, $USUARIOS[$login])
-    ) {
-        // Autenticação bem-sucedida
-        session_regenerate_id(true); // Previne session fixation
-        $_SESSION['usuario'] = $login;
-        header('Location: index.php');
-        exit;
-    } else {
-        $erro = 'Usuário ou senha incorretos. Tente novamente.';
+    $fezLogin = $_SESSION['logado'] ?? null;
+    if($fezLogin){
+        header("Location: index.php");
     }
-}
 
-$pageTitle = 'Login';
-require_once 'includes/header.php';
+    if($_SERVER['REQUEST_METHOD'] === "POST"){
+
+        $usuario = $_POST['usuario'] ?? null;
+        $senha   = $_POST['senha']   ?? null;
+
+        if(!is_null($usuario) && !is_null($senha)){
+            if($usuario == "admin" && $senha == "123"){
+                $_SESSION['logado']  = true;
+                $_SESSION['usuario'] = $usuario;
+                header("Location: index.php");
+            }else{
+                $erro = "Usuário ou senha incorretos.";
+            }
+        }else{
+            $erro = "Preencha todos os campos.";
+        }
+    }
+
 ?>
+<?php require_once "includes/header.php"; ?>
 
 <div class="login-page">
     <div class="login-card">
@@ -64,14 +43,14 @@ require_once 'includes/header.php';
 
         <div class="login-card-body">
 
-            <?php if ($erro): ?>
-                <div class="alert alert-danger"><?= htmlspecialchars($erro) ?></div>
+            <?php if(isset($erro)): ?>
+                <div class="alert alert-danger"><?= $erro ?></div>
             <?php endif; ?>
 
-            <form method="POST" action="login.php">
+            <form action="" method="post">
 
                 <div class="form-group" style="margin-bottom:1.1rem;">
-                    <label class="form-label" for="usuario">UTILIZADOR</label>
+                    <label class="form-label">UTILIZADOR</label>
                     <div style="position:relative;">
                         <svg style="position:absolute;left:.8rem;top:50%;transform:translateY(-50%);color:#94a3b8;"
                              xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
@@ -79,16 +58,13 @@ require_once 'includes/header.php';
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-4 7a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
-                        <input type="text" id="usuario" name="usuario" class="form-input"
-                               style="padding-left:2.4rem;"
-                               placeholder="admin"
-                               value="<?= htmlspecialchars($_POST['usuario'] ?? '', ENT_QUOTES) ?>"
-                               autocomplete="username" required>
+                        <input type="text" name="usuario" class="form-input"
+                               style="padding-left:2.4rem;" placeholder="admin">
                     </div>
                 </div>
 
                 <div class="form-group" style="margin-bottom:1.5rem;">
-                    <label class="form-label" for="senha">PALAVRA-PASSE</label>
+                    <label class="form-label">PALAVRA-PASSE</label>
                     <div style="position:relative;">
                         <svg style="position:absolute;left:.8rem;top:50%;transform:translateY(-50%);color:#94a3b8;"
                              xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
@@ -96,10 +72,8 @@ require_once 'includes/header.php';
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                         </svg>
-                        <input type="password" id="senha" name="senha" class="form-input"
-                               style="padding-left:2.4rem;"
-                               placeholder="••••••••"
-                               autocomplete="current-password" required>
+                        <input type="password" name="senha" class="form-input"
+                               style="padding-left:2.4rem;" placeholder="••••••••">
                     </div>
                 </div>
 
@@ -109,10 +83,10 @@ require_once 'includes/header.php';
         </div>
 
         <div class="login-footer">
-            <p>💡 <strong>Dica:</strong> admin / admin123 &nbsp;|&nbsp; user / user123</p>
-            <p style="margin-top:.4rem;">PHP Academic Project &copy; <?= date('Y') ?></p>
+            <p>Usuário: <strong>admin</strong> &nbsp;|&nbsp; Senha: <strong>123</strong></p>
         </div>
+
     </div>
 </div>
 
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once "includes/footer.php"; ?>

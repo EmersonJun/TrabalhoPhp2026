@@ -1,12 +1,12 @@
 <?php
-/**
- * logout.php
- * Encerra a sessão do usuário e redireciona para o login
- */
 
-require_once 'sessao.php';
+    session_start();
 
-encerrarSessao();
+    unset($_SESSION['logado']);
+    unset($_SESSION['usuario']);
+    unset($_SESSION['transacoes']);
 
-header('Location: login.php');
-exit;
+    session_destroy();
+
+    header("Location: login.php");
+

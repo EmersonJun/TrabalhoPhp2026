@@ -1,9 +1,5 @@
 <?php
-/**
- * includes/nav.php
- * Componente de navegação reutilizável (apenas para páginas autenticadas)
- */
-$usuario = $_SESSION['usuario'] ?? 'Usuário';
+    $usuario = $_SESSION['usuario'] ?? null;
 ?>
 <nav class="navbar">
     <div class="nav-brand">
@@ -23,7 +19,7 @@ $usuario = $_SESSION['usuario'] ?? 'Usuário';
         </a>
     </div>
     <div class="nav-user">
-        <span>Olá, <?= htmlspecialchars(ucfirst($usuario), ENT_QUOTES, 'UTF-8') ?></span>
+        <span>Olá, <?= $usuario ?></span>
         <a href="logout.php" class="btn-logout">Sair</a>
     </div>
 </nav>
