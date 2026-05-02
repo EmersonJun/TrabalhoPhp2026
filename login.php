@@ -13,7 +13,8 @@
         $senha   = $_POST['senha']   ?? null;
 
         if(!is_null($usuario) && !is_null($senha)){
-            if($usuario == "admin" && $senha == "123"){
+            $senhaHash = password_hash("123", PASSWORD_DEFAULT);
+            if($usuario == "admin" && password_verify($senha, $senhaHash)){
                 $_SESSION['logado']  = true;
                 $_SESSION['usuario'] = $usuario;
                 header("Location: index.php");
