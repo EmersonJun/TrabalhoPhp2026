@@ -2,6 +2,7 @@
 
 Projeto acadêmico desenvolvido em PHP para a disciplina de Desenvolvimento Web.
 
+https://youtu.be/-vhMgKrubg4?si=E7-QHig3te8FTK2Y
 ## 🚀 Como executar
 
 ### Pré-requisitos
